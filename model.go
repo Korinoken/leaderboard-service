@@ -34,7 +34,7 @@ type LeaderboardModel struct {
 }
 
 func (l LeaderboardModel) DeleteTournament(request *restful.Request, response *restful.Response) {
-	tournamentName := request.PathParameter("tournament-name")
+	tournamentName := request.PathParameter("tournament-url")
 	currentTournament := api.Tournament{}
 	l.db.Where("url = ?", tournamentName).First(&currentTournament).Delete(api.Tournament{})
 	l.db.Where("tournament_id = ?", currentTournament.Id).Delete(api.TournamentResult{})
