@@ -1,0 +1,18 @@
+{
+  "BaseUrl": "https://api.challonge.com/v1/",
+  "ApiKey": "ChallongeKey",
+  "weights": {
+    "1": 100,
+    "2": 90,
+    "3": 80,
+    "4": 70,
+    "5": 60,
+    "6": 50,
+    "7": 40,
+    "8": 30,
+    "99": 5
+  },
+  "DbName": "leaderboard.db",
+  "SvcHost": "Host",
+  "ServicePort": 8086
+}
