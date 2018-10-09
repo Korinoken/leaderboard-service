@@ -1,10 +1,12 @@
 package api
 
-import "time"
+import (
+	"time"
+)
 
 type Tournament struct {
-	Id   int       `json:"id"`
+	Id   int       `json:"id" gorm:"primary_key"`
 	Name string    `json:"name"`
 	Date time.Time `json:"started_at"`
-	Url  string    `json:"full_challonge_url"`
+	Url  string    `json:"url"`
 }
