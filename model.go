@@ -168,6 +168,6 @@ func (l LeaderboardModel) calculateScore() (*[]api.ParticipantDetails, error) {
 		score.Score = score.Score / (score.Games + 1)
 		resultArray = append(resultArray, *score)
 	}
-	sort.Sort(ByScore(resultArray))
+	sort.Sort(api.ByScore(resultArray))
 	return &resultArray, nil
 }
