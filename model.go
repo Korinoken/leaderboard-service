@@ -31,10 +31,7 @@ func (l LeaderboardModel) DeleteTournament(request *restful.Request, response *r
 }
 
 func (l LeaderboardModel) AddTournamentAndResults(request *restful.Request, response *restful.Response) {
-	type RequestData struct {
-		TournamentName string `json:"TournamentName"`
-	}
-	req := &RequestData{}
+	req := &api.AddTournamentRequest{}
 	err := request.ReadEntity(req)
 	if err != nil {
 		log.Printf("Cannot read tournament name:%v", err)
