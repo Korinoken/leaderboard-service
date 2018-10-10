@@ -13,17 +13,6 @@ import (
 	"sort"
 )
 
-type ParticipantDetails struct {
-	Name  string
-	Score int
-	Games int
-}
-type ByScore []ParticipantDetails
-
-func (b ByScore) Len() int           { return len(b) }
-func (b ByScore) Swap(i, j int)      { b[i], b[j] = b[j], b[i] }
-func (b ByScore) Less(i, j int) bool { return b[i].Score > b[j].Score }
-
 type LeaderboardModel struct {
 	baseURL    *url.URL
 	apiKey     string
@@ -152,7 +141,7 @@ func (l LeaderboardModel) getTournamentDetails(tournamentName string) api.Tourna
 	return tournamentDetails["tournament"]
 }
 
-func (l LeaderboardModel) calculateScore() (*[]ParticipantDetails, error) {
+func (l LeaderboardModel) calculateScore() (*[]api.ParticipantDetails, error) {
 	var participants []api.TournamentResult
 	err := l.db.Find(&participants).Error
 	if err != nil {
@@ -160,7 +149,7 @@ func (l LeaderboardModel) calculateScore() (*[]ParticipantDetails, error) {
 		return nil, err
 	}
 
-	userScores := make(map[string]*ParticipantDetails)
+	userScores := make(map[string]*api.ParticipantDetails)
 	for _, participant := range participants {
 		if len(participant.Username) > 0 {
 			if _, exists := userScores[participant.Username]; exists {
@@ -168,13 +157,13 @@ func (l LeaderboardModel) calculateScore() (*[]ParticipantDetails, error) {
 				userScores[participant.Username].Score += l.weights[99]
 				userScores[participant.Username].Games += 1
 			} else {
-				userScores[participant.Username] = &ParticipantDetails{participant.Username,
+				userScores[participant.Username] = &api.ParticipantDetails{participant.Username,
 					l.weights[participant.FinalRank] + l.weights[99],
 					1}
 			}
 		}
 	}
-	var resultArray []ParticipantDetails
+	var resultArray []api.ParticipantDetails
 	for _, score := range userScores {
 		score.Score = score.Score / (score.Games + 1)
 		resultArray = append(resultArray, *score)
