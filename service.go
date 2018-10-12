@@ -48,36 +48,49 @@ func (c *LeaderboardService) Run(cfg Config) error {
 	ws := new(restful.WebService)
 	ws.
 		Path("/leaderboard").
+		Doc("DocTest").
 		Consumes(restful.MIME_JSON, restful.MIME_XML).
 		Produces(restful.MIME_JSON, restful.MIME_XML)
 
 	ws.Route(ws.POST("{tournaments}").To(model.AddTournamentAndResults).
 		Doc("add tournament and participants by url without domain").
-		Operation("AddTournamentAndResults").Consumes())
+		Operation("AddTournamentAndResults").
+		Reads(api.AddTournamentRequest{}))
 	ws.Route(ws.DELETE("{tournaments}/{tournament-url}").To(model.DeleteTournament).
 		Doc("delete tournament and results by url without domain").
 		Operation("DeleteTournament"))
 	ws.Route(ws.GET("{tournaments}/{tournament-url}").To(model.GetTournamentData).
 		Doc("Get details for a tournament by url without domain").
-		Operation("GetTournamentData"))
+		Operation("GetTournamentData").
+		Writes(api.Tournament{}))
 	ws.Route(ws.GET("scoreboard").To(model.GetScore).
 		Doc("Get scores").
-		Operation("GetScore"))
-	ws.Route(ws.GET("participants/{participant-name}").To(model.GetParticipantData).
+		Operation("GetScore").
+		Writes([]api.ParticipantResults{}))
+	ws.Route(ws.GET("participants/{participant-name}/results").To(model.GetParticipantData).
 		Doc("Get details for participant").
 		Operation("GetScore"))
+	ws.Route(ws.POST("participants").To(model.CreateParticipantDetails).
+		Doc("Add details to participant").
+		Operation("GetScore").
+		Reads(api.ParticipantDetails{}))
+	ws.Route(ws.PUT("participants").To(model.CreateParticipantDetails).
+		Doc("Edit participant detials").
+		Operation("CreateParticipantDetails").
+		Reads(api.ParticipantDetails{}))
+	ws.Route(ws.GET("participants/{participant-name}/details").To(model.GetParticipantDetails).
+		Doc("Get details for participant").
+		Operation("GetParticipantDetails").
+		Writes(api.ParticipantDetails{}))
 	restful.Add(ws)
 
 	//TODO: fix swagger and add annotations
 	svcConfig := swagger.Config{
-		WebServices:    restful.RegisteredWebServices(), // you control what services are visible
-		WebServicesUrl: cfg.SvcHost,
-		ApiPath:        "/apidocs.json",
-
-		// Optionally, specifiy where the UI is located
-		SwaggerPath: "/apidocs/",
-		//SwaggerFilePath: "/Customers/emicklei/Projects/swagger-ui/dist"}
-		SwaggerFilePath: "C:\\Go_projects\\pkg\\windows_amd64\\github.com\\emicklei\\swagger-ui-2.1.4\\dist"}
+		WebServices:     restful.RegisteredWebServices(),
+		WebServicesUrl:  cfg.SvcHost,
+		ApiPath:         "/apidocs.json",
+		SwaggerPath:     "/apidocs/",
+		SwaggerFilePath: ".\\dist"}
 	swagger.InstallSwaggerService(svcConfig)
 
 	log.Printf("start listening on localhost %v", cfg.SvcHost)
@@ -97,6 +110,7 @@ func (c LeaderboardService) InitDB(cfg Config) (*gorm.DB, error) {
 	}
 	db.AutoMigrate(&api.TournamentResult{})
 	db.AutoMigrate(&api.Tournament{})
+	db.AutoMigrate(&api.ParticipantDetails{})
 	return db, nil
 }
 

@@ -59,6 +59,24 @@ func (l LeaderboardModel) GetScore(request *restful.Request, response *restful.R
 	log.Printf("Created scoreboard")
 	response.WriteEntity(result)
 }
+func (l LeaderboardModel) CreateParticipantDetails(request *restful.Request, response *restful.Response) {
+	req := &api.ParticipantDetails{}
+	err := request.ReadEntity(req)
+	if err != nil {
+		log.Printf("Cannot read participant data:%v", err)
+		response.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	l.db.Assign(req).FirstOrCreate(req)
+	response.WriteHeader(http.StatusOK)
+}
+
+func (l LeaderboardModel) GetParticipantDetails(request *restful.Request, response *restful.Response) {
+	resp := &api.ParticipantDetails{}
+	participantName := request.PathParameter("participant-name")
+	l.db.Where("user_name = ?", participantName).First(resp)
+	response.WriteEntity(resp)
+}
 
 func (l LeaderboardModel) GetParticipantData(request *restful.Request, response *restful.Response) {
 	var participantEntries []api.TournamentResult
