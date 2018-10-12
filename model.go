@@ -138,7 +138,7 @@ func (l LeaderboardModel) getTournamentDetails(tournamentName string) api.Tourna
 	return tournamentDetails["tournament"]
 }
 
-func (l LeaderboardModel) calculateScore() (*[]api.ParticipantDetails, error) {
+func (l LeaderboardModel) calculateScore() (*[]api.ParticipantResults, error) {
 	var participants []api.TournamentResult
 	err := l.db.Find(&participants).Error
 	if err != nil {
@@ -146,7 +146,7 @@ func (l LeaderboardModel) calculateScore() (*[]api.ParticipantDetails, error) {
 		return nil, err
 	}
 
-	userScores := make(map[string]*api.ParticipantDetails)
+	userScores := make(map[string]*api.ParticipantResults)
 	for _, participant := range participants {
 		if len(participant.Username) > 0 {
 			if _, exists := userScores[participant.Username]; exists {
@@ -154,13 +154,13 @@ func (l LeaderboardModel) calculateScore() (*[]api.ParticipantDetails, error) {
 				userScores[participant.Username].Score += l.weights[99]
 				userScores[participant.Username].Games += 1
 			} else {
-				userScores[participant.Username] = &api.ParticipantDetails{participant.Username,
-					l.weights[participant.FinalRank] + l.weights[99],
-					1}
+				userScores[participant.Username] = &api.ParticipantResults{Name: participant.Username,
+					Score: l.weights[participant.FinalRank] + l.weights[99],
+					Games: 1}
 			}
 		}
 	}
-	var resultArray []api.ParticipantDetails
+	var resultArray []api.ParticipantResults
 	for _, score := range userScores {
 		score.Score = score.Score / (score.Games + 1)
 		resultArray = append(resultArray, *score)

@@ -1,11 +1,11 @@
 package api
 
-type ParticipantDetails struct {
+type ParticipantResults struct {
 	Name  string
 	Score int
 	Games int
 }
-type ByScore []ParticipantDetails
+type ByScore []ParticipantResults
 
 func (b ByScore) Len() int           { return len(b) }
 func (b ByScore) Swap(i, j int)      { b[i], b[j] = b[j], b[i] }
