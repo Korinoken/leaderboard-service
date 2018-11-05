@@ -74,8 +74,13 @@ func (l LeaderboardModel) CreateParticipantDetails(request *restful.Request, res
 func (l LeaderboardModel) GetParticipantDetails(request *restful.Request, response *restful.Response) {
 	resp := &api.ParticipantDetails{}
 	participantName := request.PathParameter("participant-name")
-	l.db.Where("user_name = ?", participantName).First(resp)
-	response.WriteEntity(resp)
+	if l.db.Where("user_name = ?", participantName).First(resp).RecordNotFound() {
+		log.Printf("Cannot find details for participant %v", participantName)
+		response.WriteHeader(http.StatusNotFound)
+	} else {
+		log.Printf("Fetched details for participant %v", participantName)
+		response.WriteEntity(resp)
+	}
 }
 
 func (l LeaderboardModel) GetParticipantData(request *restful.Request, response *restful.Response) {
@@ -90,8 +95,13 @@ func (l LeaderboardModel) GetParticipantData(request *restful.Request, response 
 		response.WriteHeader(http.StatusNotFound)
 		return
 	}
-	log.Printf("Fetched details for player %v", participantName)
-	response.WriteEntity(&participantEntries)
+	if len(participantEntries) > 0 {
+		log.Printf("Fetched details for player %v", participantName)
+		response.WriteEntity(&participantEntries)
+	} else {
+		log.Printf("Player not found %v", participantName)
+		response.WriteHeader(http.StatusNotFound)
+	}
 }
 
 func (l LeaderboardModel) GetTournamentData(request *restful.Request, response *restful.Response) {
@@ -99,8 +109,14 @@ func (l LeaderboardModel) GetTournamentData(request *restful.Request, response *
 	tourneyName := request.PathParameter("tournament-url")
 	err := l.db.Where("url = ?", tourneyName).First(&tournamentDetails).Error
 	if err != nil {
-		log.Printf("Error while fetching tournament details %v", err)
-		response.WriteHeader(http.StatusInternalServerError)
+		switch err.Error() {
+		case gorm.ErrRecordNotFound.Error():
+			log.Printf("No details found for tournament %v", err)
+			response.WriteHeader(http.StatusNotFound)
+		default:
+			log.Printf("Error while fetching tournament details %v", err)
+			response.WriteHeader(http.StatusInternalServerError)
+		}
 		return
 	}
 	log.Printf("Fetched tournament data for :%v", tourneyName)
