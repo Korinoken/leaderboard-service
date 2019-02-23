@@ -87,8 +87,11 @@ func (c *LeaderboardService) Run(cfg Config) error {
 	restful.Add(ws)
 
 	svcConfig := swagger.Config{
-		WebServices: restful.RegisteredWebServices(),
-		ApiPath:     "/leaderboard/docs"}
+		WebServices:     restful.RegisteredWebServices(),
+		ApiPath:         "/leaderboard/docs.json",
+		SwaggerPath:     "/leaderboard/docs/",
+		SwaggerFilePath: ".\\swaggerUI",
+	}
 	swagger.InstallSwaggerService(svcConfig)
 
 	log.Printf("start listening on localhost %v", cfg.SvcHost)
