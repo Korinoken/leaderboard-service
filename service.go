@@ -63,7 +63,7 @@ func (c *LeaderboardService) Run(cfg Config) error {
 		Param(ws.PathParameter("tournament-url", "Name of the tournament as is in Chalonge url").DataType("string")).
 		Operation("GetTournamentData").
 		Writes(api.Tournament{}))
-	ws.Route(ws.GET("scoreboard").To(model.GetScore).
+	ws.Route(ws.GET("/").To(model.GetScore).
 		Doc("Get scores").
 		Operation("GetScore").
 		Writes([]api.ParticipantResults{}))
