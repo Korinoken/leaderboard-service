@@ -14,6 +14,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 	_ "os"
 	"strconv"
 )
@@ -117,8 +118,10 @@ func (c LeaderboardService) InitDB(cfg Config) (*gorm.DB, error) {
 
 func main() {
 	cfg := &Config{}
+	configFile := os.Args[1]
+	log.Printf("Using config file: %v", configFile)
 	service := LeaderboardService{}
-	cfgFile, err := ioutil.ReadFile("config.json")
+	cfgFile, err := ioutil.ReadFile(configFile)
 	if err != nil {
 		log.Panicf("Cannot read config file: %v", err)
 	}
