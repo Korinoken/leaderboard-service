@@ -51,13 +51,32 @@ func (l LeaderboardModel) AddTournamentAndResults(request *restful.Request, resp
 }
 
 func (l LeaderboardModel) GetScore(request *restful.Request, response *restful.Response) {
-	result, err := l.calculateScore()
+	calculatedScores, err := l.calculateScore()
 	if err != nil {
 		response.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	log.Printf("Created scoreboard")
-	response.WriteEntity(result)
+	var details []api.ParticipantDetails
+	err = l.db.Find(&details).Error
+	if err != nil {
+		response.WriteHeader(http.StatusInternalServerError)
+		log.Printf("Error while fetching details %v", err)
+		return
+	}
+	detailMap := map[string]api.ParticipantDetails{}
+
+	for _, val := range details {
+		detailMap[val.UserName] = val
+	}
+	var results []api.ParticipantResults
+	for _, result := range *calculatedScores {
+		currentDetail := detailMap[result.ChallongeName]
+		result.Name = currentDetail.DisplayName
+		result.Country = currentDetail.Country
+		results = append(results, result)
+	}
+	response.WriteEntity(results)
 }
 func (l LeaderboardModel) CreateParticipantDetails(request *restful.Request, response *restful.Response) {
 	req := &api.ParticipantDetails{}
@@ -188,7 +207,7 @@ func (l LeaderboardModel) calculateScore() (*[]api.ParticipantResults, error) {
 				userScores[participant.Username].Score += l.weights[99]
 				userScores[participant.Username].Games += 1
 			} else {
-				userScores[participant.Username] = &api.ParticipantResults{Name: participant.Username,
+				userScores[participant.Username] = &api.ParticipantResults{ChallongeName: participant.Username,
 					Score: l.weights[participant.FinalRank] + l.weights[99],
 					Games: 1}
 			}

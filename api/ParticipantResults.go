@@ -1,9 +1,11 @@
 package api
 
 type ParticipantResults struct {
-	Name  string
-	Score int
-	Games int
+	ChallongeName string
+	Score         int
+	Games         int
+	Name          string
+	Country       string
 }
 type ByScore []ParticipantResults
 
