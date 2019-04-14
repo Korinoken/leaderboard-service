@@ -74,6 +74,8 @@ func (l LeaderboardModel) GetScore(request *restful.Request, response *restful.R
 		currentDetail := detailMap[result.ChallongeName]
 		if len(currentDetail.DisplayName) > 0 {
 			result.Name = currentDetail.DisplayName
+		} else {
+			result.Name = result.ChallongeName
 		}
 		result.Country = currentDetail.Country
 		results = append(results, result)
