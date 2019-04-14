@@ -72,7 +72,9 @@ func (l LeaderboardModel) GetScore(request *restful.Request, response *restful.R
 	var results []api.ParticipantResults
 	for _, result := range *calculatedScores {
 		currentDetail := detailMap[result.ChallongeName]
-		result.Name = currentDetail.DisplayName
+		if len(currentDetail.DisplayName) > 0 {
+			result.Name = currentDetail.DisplayName
+		}
 		result.Country = currentDetail.Country
 		results = append(results, result)
 	}
